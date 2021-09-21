@@ -1,0 +1,76 @@
+**Free                                                       
+                                                             
+   // Control Options                                        
+                                                             
+   Ctl-Opt DftActGrp(*No) BndDir('B1':'QC2LE');              
+                                                             
+   // File Declaration                                       
+                                                             
+   Dcl-F EMPPF2 Disk  Usage(*Input) ;                        
+                                                             
+   // Procedure for writing the data on web                  
+                                                             
+   Dcl-Pr  WriteToWeb ExtProc('QtmhWrStout');                
+      DataVar       Char(65535)   Options(*VarSize);         
+      DataVarLen    Int(10)       Const;                     
+      ErrorCode     Char(8000)    Options(*Varsize);         
+   End-Pr;                                                   
+                                                             
+   // Procedure to Get URL                    
+
+    Dcl-Pr GetEnv Pointer ExtProc('getenv');   
+        *N Pointer Value Options(*string);     
+    End-Pr;                                    
+                                               
+    // Data Structure for error information    
+                                               
+    Dcl-Ds  ErrDs  Qualified ;                 
+       BytesProv    Int(10)  Inz(0);           
+       BytesAvail   Int(10)  Inz(0) ;          
+    End-Ds;                                    
+                                               
+    // Variable & Constant Declaration         
+
+     Dcl-C  CRLF    x'0d25';                                 
+     Dcl-S  Pos     Int(10);                                 
+     Dcl-S  Data    Char(5000);                              
+     Dcl-S  URL     Char(5000);                              
+     Dcl-S  Parm    Char(100);                               
+     Dcl-S  InpId   Like(EMPID);                             
+                                                             
+     // Setting Header                                       
+                                                             
+     Data = 'Content-type: Text/html' + CRLF + CRLF ;        
+     WriteToWeb(Data : %len(%Trim(Data)) : ErrDS) ;          
+                                                             
+     URL = %Str( GetEnv('REQUEST_URI'));                     
+     Parm = '/GETPF/';                                       
+     Pos =  %Int(%Scanr( '/' : URL ));                 
+
+
+ Monitor;                                                          
+     InpId =  %Int(%Subst(Url : Pos + 1 : 2 ));                    
+ On-Error;                                                         
+     Data = '<h3>Invalid URL</h3>';                                
+     WriteToWeb(Data : %len(%Trim(Data)) : ErrDS) ;                
+     Return;                                                       
+ Endmon;                                                           
+                                                                   
+ Chain InpId EMPPFR;                                               
+ If %Found(Emppf2);                                                
+ Data = '<H1>Employee Details :- <Br>' +                           
+        '<H3>Employee Id    : ' + %Char(InpId) + '</H3> <Br>' +    
+        '<H3>Employee Name  : ' + %Char(EmpName) + '</H3> <Br>' +  
+        '<H3>Employee Email : ' + %Char(EmpEmail) + '</H3> <Br>' + 
+        '<H3>Current City   : ' + %Char(EmpCity) + '</H3> <Br>';   
+ WriteToWeb(Data : %len(%Trim(Data)) : ErrDS) ;                    
+ Return;                                                           
+ Else;                                                             
+ Data = '<H1> Record Not Found!</H1>';                             
+ WriteToWeb(Data : %len(%Trim(Data)) : ErrDS) ;       
+
+ Return;        
+ Endif;         
+                                   
+                                                             
+   
