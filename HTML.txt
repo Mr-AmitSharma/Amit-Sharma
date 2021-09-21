@@ -1,0 +1,27 @@
+ <!DOCTYPE html>                                                                                           
+ <html>                                                                                                    
+ <head>                                                                                                    
+ <script>                                                                                                  
+ function CallGetPf() {                                                                                    
+ var url = "http://IP:PORT/rpgle/ProgramName/" + document.getElementById("InputId").value;            
+ var xhttp = new XMLHttpRequest();                                                                         
+                                                                                                           
+ xhttp.onreadystatechange = function() {                                                                   
+                                                                                                           
+ if (this.readyState == 4 && this.status == 200) {                                                         
+ document.getElementById("Data").innerHTML =                                                               
+ this.responseText;                                                                                        
+ }                                                                                                         
+ };                                                                                                        
+ xhttp.open("GET",url, true);                          
+ xhttp.send()                                            
+                                                         
+ }                                                       
+ </script>                                               
+ </head>                                                 
+ <body>                                                  
+ <H1 align="center">** Welcome to DevServer **</H1>      
+ <Input type = "number" id = "InputId">                  
+ <Button onclick = "CallGetPf()">Show Details</Button>   
+ <div id="Data"></div>            
+</Body>                                                                              
